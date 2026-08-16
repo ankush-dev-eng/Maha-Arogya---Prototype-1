@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: mahaarogya-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - FRONTEND_URL=http://localhost:3000
+      - AI_GATEWAY_URL=http://ai-gateway:8001
+    depends_on:
+      - ai-gateway
+
+  ai-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.aigateway
+    container_name: mahaarogya-aigateway
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - OLLAMA_URL=http://localhost:11434
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: mahaarogya-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend

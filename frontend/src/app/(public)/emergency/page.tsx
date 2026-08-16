@@ -38,18 +38,34 @@ export default function EmergencyPage() {
           setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         },
         () => {
-          setUserCoords({ lat: 18.5018, lng: 73.8636 });
+          setUserCoords({ lat: 21.0833, lng: 79.0994 });
         },
         { enableHighAccuracy: true, timeout: 6000 }
       );
     }
   }, []);
 
+  const isNagpur = userCoords && userCoords.lat > 20.5 && userCoords.lat < 21.8;
+
+  const hospitalInfo = isNagpur ? {
+    name: 'Government Medical College & Hospital (GMC) Trauma ER',
+    address: 'Medical Square, Hanuman Nagar, Nagpur • ER Bed #ICU-04 pre-reserved',
+    lat: 21.1278,
+    lng: 79.0984,
+    ambulanceId: 'MH-31-EM-9912 (ALS Unit Nagpur)'
+  } : {
+    name: 'Sassoon General Hospital Trauma ER',
+    address: 'Near Pune Railway Station, Sassoon Road • ER Bed #ICU-04 pre-reserved',
+    lat: 18.5204,
+    lng: 73.8567,
+    ambulanceId: 'MH-12-EM-9912 (ALS Unit Pune)'
+  };
+
   const handleOpenLiveRoute = () => {
-    const originLat = userCoords ? userCoords.lat : 18.5018;
-    const originLng = userCoords ? userCoords.lng : 73.8636;
-    const destinationLat = 18.5204;
-    const destinationLng = 73.8567;
+    const originLat = userCoords ? userCoords.lat : (isNagpur ? 21.0833 : 18.5204);
+    const originLng = userCoords ? userCoords.lng : (isNagpur ? 79.0994 : 73.8567);
+    const destinationLat = hospitalInfo.lat;
+    const destinationLng = hospitalInfo.lng;
 
     const gmapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destinationLat},${destinationLng}&travelmode=driving`;
     window.open(gmapsUrl, '_blank');
@@ -126,7 +142,7 @@ export default function EmergencyPage() {
                   ✓
                 </span>
                 <p className="text-sm font-extrabold text-slate-900">{t('emgHospitalAlerted')}</p>
-                <p className="text-xs text-slate-500 mt-0.5">Sassoon General Hospital ER acknowledged. 30-min ICU Bed hold active.</p>
+                <p className="text-xs text-slate-500 mt-0.5">{hospitalInfo.name} ER acknowledged. 30-min ICU Bed hold active.</p>
               </div>
 
               {/* Step 3 */}
@@ -135,7 +151,7 @@ export default function EmergencyPage() {
                   3
                 </span>
                 <p className="text-sm font-extrabold text-red-600">{t('emgAmbulanceEnRoute')}</p>
-                <p className="text-xs text-slate-600 mt-0.5">108 Advanced Life Support unit #MH-12-EM-9912 moving to your GPS location.</p>
+                <p className="text-xs text-slate-600 mt-0.5">108 Advanced Life Support unit {hospitalInfo.ambulanceId} moving to your live location.</p>
               </div>
 
               {/* Step 4 */}
@@ -167,7 +183,7 @@ export default function EmergencyPage() {
               <div className="space-y-2 text-xs font-bold text-slate-700 bg-white p-3.5 rounded-2xl border border-red-100">
                 <div className="flex justify-between border-b pb-1.5">
                   <span className="text-slate-500 font-medium">Ambulance ID:</span>
-                  <span className="font-mono text-slate-900">MH-12-EM-9912 (ALS-Unit)</span>
+                  <span className="font-mono text-slate-900">{hospitalInfo.ambulanceId}</span>
                 </div>
                 <div className="flex justify-between border-b pb-1.5">
                   <span className="text-slate-500 font-medium">{t('emgParamedic')}:</span>
@@ -196,8 +212,8 @@ export default function EmergencyPage() {
                 <ShieldAlert className="w-4 h-4 text-teal-600" /> {t('emgReceivingHospital')}
               </h3>
               <div>
-                <p className="font-black text-slate-900 text-base">Sassoon General Hospital Trauma ER</p>
-                <p className="text-xs text-slate-500">Near Pune Railway Station • ER Bed #ICU-04 pre-reserved</p>
+                <p className="font-black text-slate-900 text-base">{hospitalInfo.name}</p>
+                <p className="text-xs text-slate-500">{hospitalInfo.address}</p>
               </div>
               <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-800 font-bold flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />

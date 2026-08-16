@@ -27,6 +27,7 @@ export const DICTIONARY: Translations = {
   navQueue: { en: 'OPD Token', mr: 'ओपीडी टोकन', hi: 'ओपीडी टोकन' },
   navEmergency: { en: 'Emergency Help', mr: 'तातडीची मदत (108)', hi: 'आपातकालीन मदद' },
   navRecords: { en: 'Health Records', mr: 'आरोग्य नोंदी', hi: 'स्वास्थ्य रिकॉर्ड' },
+  navSchemes: { en: 'Govt Schemes', mr: 'शासकीय योजना', hi: 'सरकारी योजनाएं' },
   navDashboard: { en: 'Command Center', mr: 'कमांड सेंटर', hi: 'कमांड सेंटर' },
   navDoctor: { en: 'Doctor Consultation', mr: 'डॉक्टर तपासणी कक्ष', hi: 'डॉक्टर परामर्श' },
   navBeds: { en: 'Bed Management', mr: 'खाटांचे व्यवस्थापन', hi: 'बेड प्रबंधन' },

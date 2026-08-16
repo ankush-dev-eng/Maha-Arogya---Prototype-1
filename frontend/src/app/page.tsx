@@ -33,16 +33,12 @@ export default function LoginPage() {
 
   const handleDownloadApp = (platform: 'windows' | 'android') => {
     const filename = platform === 'windows' ? 'MahaArogya_Desktop_v1.0.exe' : 'MahaArogya_Android_v1.0.apk';
-    const blobContent = `MahaArogya Sanjeevani Grid ${platform.toUpperCase()} Client Package v1.0.0 (SHA-256 Verified)`;
-    const blob = new Blob([blobContent], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = `/${filename}`;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
     setShowDownloadModal(false);
   };
 

@@ -16,8 +16,11 @@ import {
   ArrowRight, 
   RefreshCw, 
   Trash2,
-  AlertCircle
+  AlertCircle,
+  MessageCircle,
+  Share2
 } from 'lucide-react';
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface TokenData {
   tokenNumber: string;
@@ -35,6 +38,7 @@ interface TokenData {
 
 export default function QueuePage() {
   const router = useRouter();
+  const { t, language } = useLanguage();
   const [token, setToken] = useState<TokenData | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -57,27 +61,44 @@ export default function QueuePage() {
 
   const generateDemoToken = () => {
     const newDemoToken: TokenData = {
-      tokenNumber: 'A-108',
-      hospitalName: 'Sassoon General Hospital',
-      hospitalAddress: 'Near Pune Railway Station, Sassoon Road',
-      department: 'Cardiology OPD',
-      roomNo: 'Room 102',
-      currentToken: 'A-104',
-      estimatedWaitMinutes: 20,
+      tokenNumber: 'A-110',
+      hospitalName: 'Government Medical College & Hospital (GMC)',
+      hospitalAddress: 'Medical Square, Hanuman Nagar, Nagpur',
+      department: 'General Medicine OPD',
+      roomNo: 'Room 104',
+      currentToken: 'A-106',
+      estimatedWaitMinutes: 18,
       peopleAhead: 4,
       date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      slot: '10:30 AM - 11:00 AM',
+      slot: 'Next Slot (04:34 PM)',
       patientName: 'Rajesh Patil'
     };
     localStorage.setItem('maha_active_token', JSON.stringify(newDemoToken));
     setToken(newDemoToken);
-    showToast('🎫 Demo OPD Token A-108 generated successfully!');
+    showToast('🎫 OPD Token A-110 generated successfully!');
   };
 
   const cancelToken = () => {
     localStorage.removeItem('maha_active_token');
     setToken(null);
     showToast('🗑️ OPD Token cancelled.');
+  };
+
+  const handleWhatsAppNotification = () => {
+    if (!token) return;
+    const message = `🏥 *MahaArogya Smart OPD Confirmation*\n\n` +
+      `👤 *Patient:* ${token.patientName}\n` +
+      `🎫 *Token Number:* ${token.tokenNumber}\n` +
+      `🏥 *Hospital:* ${token.hospitalName}\n` +
+      `🩺 *Department:* ${token.department} (${token.roomNo})\n` +
+      `🕒 *Slot:* ${token.slot}\n` +
+      `⏳ *Estimated Wait:* ~${token.estimatedWaitMinutes} mins (${token.peopleAhead} patients ahead)\n` +
+      `📍 *Live Tracker:* http://localhost:3000/queue\n\n` +
+      `_MahaArogya Sanjeevani Grid - Govt of Maharashtra_`;
+
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
+    showToast('📲 WhatsApp notification message created! Opening WhatsApp...');
   };
 
   return (
@@ -92,17 +113,21 @@ export default function QueuePage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">MahaOPD Smart Token Tracker</h1>
-          <p className="text-sm text-slate-500">Live dynamic queue status, estimated wait times & appointment windows.</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            {language === 'mr' ? 'महाओपीडी स्मार्ट टोकन ट्रॅकर' : language === 'hi' ? 'महाओपीडी स्मार्ट टोकन ट्रैकर' : 'MahaOPD Smart Token Tracker'}
+          </h1>
+          <p className="text-sm text-slate-500">
+            {language === 'mr' ? 'थेट रांग स्थिती, अंदाजे प्रतीक्षा वेळ आणि भेट वेळ.' : language === 'hi' ? 'लाइव कतार स्थिति, अनुमानित प्रतीक्षा समय और अपॉइंटमेंट विंडो।' : 'Live dynamic queue status, estimated wait times & appointment windows.'}
+          </p>
         </div>
         {token && (
           <Button 
             variant="outline" 
             size="sm" 
             onClick={cancelToken} 
-            className="text-red-600 border-red-200 hover:bg-red-50 text-xs"
+            className="text-red-600 border-red-200 hover:bg-red-50 text-xs font-bold"
           >
-            <Trash2 className="w-3.5 h-3.5 mr-1" /> Cancel Token
+            <Trash2 className="w-3.5 h-3.5 mr-1" /> {t('cancel')} Token
           </Button>
         )}
       </div>
@@ -123,24 +148,24 @@ export default function QueuePage() {
               onClick={() => router.push('/triage')} 
               className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 text-sm shadow-md shadow-teal-600/20"
             >
-              🎙️ Start AI Symptom Triage
+              🎙️ {t('navTriage')}
             </Button>
             <Button 
               onClick={() => router.push('/hospitals')} 
               variant="outline"
               className="w-full border-slate-300 hover:bg-slate-50 font-bold py-3 text-sm"
             >
-              <MapPin className="w-4 h-4 mr-2 text-teal-600" /> Explore Hospitals
+              <MapPin className="w-4 h-4 mr-2 text-teal-600" /> {t('navHospitals')}
             </Button>
           </div>
 
           <div className="mt-8 pt-8 border-t border-slate-100">
-            <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">Quick Hackathon Testing</p>
+            <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">Quick Hackathon Demo</p>
             <button 
               onClick={generateDemoToken}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
             >
-              <Sparkles className="w-3.5 h-3.5 text-teal-600" /> Generate Demo Cardiology Token (A-108)
+              <Sparkles className="w-3.5 h-3.5 text-teal-600" /> Generate Demo Hospital Token (A-110)
             </button>
           </div>
         </Card>
@@ -208,15 +233,15 @@ export default function QueuePage() {
               <Button 
                 onClick={() => setShowQrModal(true)} 
                 variant="outline" 
-                className="flex-1 border-slate-300 font-semibold"
+                className="flex-1 border-slate-300 font-bold text-xs"
               >
                 <QrCode className="mr-2 w-4 h-4 text-slate-600" /> Show Fast-Pass QR
               </Button>
               <Button 
-                onClick={() => showToast('🔔 SMS & WhatsApp notifications enabled! We will alert you 5 minutes before your turn.')} 
-                className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold shadow-sm"
+                onClick={handleWhatsAppNotification}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5"
               >
-                <Bell className="mr-2 w-4 h-4" /> Notify Me at 5 Mins
+                <MessageCircle className="w-4 h-4" /> Send Live Alert on WhatsApp 📲
               </Button>
             </div>
           </div>
@@ -233,7 +258,7 @@ export default function QueuePage() {
               <QrCode className="w-36 h-36" />
             </div>
             <p className="text-sm font-black text-slate-900">TOKEN: {token?.tokenNumber}</p>
-            <Button onClick={() => setShowQrModal(false)} className="w-full bg-slate-900 hover:bg-slate-800 text-white">
+            <Button onClick={() => setShowQrModal(false)} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold">
               Close
             </Button>
           </div>

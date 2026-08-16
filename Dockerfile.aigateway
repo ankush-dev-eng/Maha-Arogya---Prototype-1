@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system audio and build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install
+COPY ai-gateway/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy AI gateway source
+COPY ai-gateway/ /app/
+
+EXPOSE 8001
+
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8001"]

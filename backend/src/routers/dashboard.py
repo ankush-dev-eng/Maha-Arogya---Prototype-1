@@ -71,17 +71,26 @@ async def get_heatmap(db: AsyncSession = Depends(get_db)):
     return data
 
 @router.get("/anomalies")
-async def get_anomalies():
-    # Mock anomalies
+async def get_anomalies(db: AsyncSession = Depends(get_db)):
+    from src.models import Anomaly
+    res = await db.execute(select(Anomaly).order_by(Anomaly.created_at.desc()).limit(10))
+    anomalies = res.scalars().all()
+    if anomalies:
+        return anomalies
     return [
-        {"type": "surge", "hospital": "Pune General", "message": "OPD queue exceeding capacity"},
-        {"type": "shortage", "hospital": "City Hospital", "message": "O- blood stock critical"}
+        {"type": "surge", "hospital": "Pune General", "message": "OPD queue exceeding capacity", "score": 0.88, "status": "active"},
+        {"type": "shortage", "hospital": "City Hospital", "message": "O- blood stock critical", "score": 0.94, "status": "active"},
+        {"type": "mismatch", "hospital": "KEM Hospital", "message": "CCTV bed occupancy discrepancy detected in General Ward B", "score": 0.76, "status": "acknowledged"}
     ]
 
 @router.get("/audit")
-async def get_audit_log():
-    # Mock audit events
+async def get_audit_log(db: AsyncSession = Depends(get_db)):
+    from src.models import AuditEvent
+    res = await db.execute(select(AuditEvent).order_by(AuditEvent.timestamp.desc()).limit(20))
+    events = res.scalars().all()
+    if events:
+        return events
     return [
-        {"action": "bed_allocation", "user": "Dr. Sharma", "timestamp": "2026-08-16T10:00:00Z"},
-        {"action": "emergency_accepted", "user": "Nurse Anjali", "timestamp": "2026-08-16T09:45:00Z"}
+        {"action": "BED_ALLOCATION", "actor": "Dr. Sharma", "entity_type": "bed", "entity_id": "bed-12", "timestamp": "2026-08-16T10:00:00Z", "model_version": "v1.0"},
+        {"action": "EMERGENCY_ACKNOWLEDGED", "actor": "Nurse Anjali", "entity_type": "emergency_case", "entity_id": "emg-9182", "timestamp": "2026-08-16T09:45:00Z", "model_version": "v1.0"}
     ]

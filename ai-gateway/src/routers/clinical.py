@@ -129,8 +129,10 @@ def mock_extract(transcript: str, language: str) -> ExtractResponse:
     all_maps = {**symptom_map, **hindi_map, **marathi_map}
     for keyword, (concept, severity) in all_maps.items():
         if keyword in text:
-            # Check negation
-            negated = any(neg in text for neg in ["no ", "not ", "don't have", "nahi", "नाही", "नहीं"])
+            # Check proximity-scoped negation around keyword
+            idx = text.find(keyword)
+            window = text[max(0, idx - 30): min(len(text), idx + len(keyword) + 30)]
+            negated = any(neg in window for neg in ["no ", "not ", "don't have", "without", "nahi", "नाही", "नहीं", "नको", "नव्हते"])
             symptoms.append(SymptomEntity(
                 concept=concept,
                 value=keyword,

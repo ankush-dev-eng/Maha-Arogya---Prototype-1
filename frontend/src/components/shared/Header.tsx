@@ -21,7 +21,7 @@ export function Header() {
   }, [pathname]);
 
   const roleMeta = ROLE_DEFINITIONS[currentRole as keyof typeof ROLE_DEFINITIONS] || ROLE_DEFINITIONS[ROLE_KEYS.CITIZEN];
-  const isCitizen = currentRole === ROLE_KEYS.CITIZEN || pathname.startsWith('/triage') || pathname.startsWith('/hospitals') || pathname.startsWith('/queue') || pathname.startsWith('/emergency') || pathname.startsWith('/records');
+  const isCitizen = currentRole === ROLE_KEYS.CITIZEN || pathname.startsWith('/triage') || pathname.startsWith('/hospitals') || pathname.startsWith('/queue') || pathname.startsWith('/emergency') || pathname.startsWith('/records') || pathname.startsWith('/schemes');
 
   const handleLogout = () => {
     localStorage.removeItem('maha_role');
@@ -79,6 +79,12 @@ export function Header() {
                 className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${pathname === '/records' ? 'bg-slate-800 text-teal-400' : 'hover:text-white hover:bg-slate-800/60'}`}
               >
                 <FileText className="w-4 h-4" /> {t('navRecords')}
+              </Link>
+              <Link 
+                href="/schemes" 
+                className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${pathname === '/schemes' ? 'bg-slate-800 text-teal-400' : 'hover:text-white hover:bg-slate-800/60'}`}
+              >
+                <Sparkles className="w-4 h-4 text-amber-400" /> {t('navSchemes')}
               </Link>
             </nav>
           )}
