@@ -129,7 +129,7 @@ export default function AdminEmergencyPage() {
             {t('emergencyTitle')}
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 mt-1">
-            Real-time incoming alerts from 108 Dispatch, triage escalation, and 30-minute trauma bed reservation hold.
+            {t('emergencySubtitle')}
           </p>
         </div>
         <Badge variant="danger" className="text-xs sm:text-sm px-4 py-2 animate-pulse shrink-0 font-black shadow-lg">
@@ -177,7 +177,7 @@ export default function AdminEmergencyPage() {
                       <div className="flex flex-wrap items-center gap-2 mb-1.5">
                         <h2 className="text-lg sm:text-xl font-black text-slate-900">{alert.type}</h2>
                         <Badge variant={isIncoming ? 'danger' : isBedReserved ? 'success' : isArrived ? 'outline' : 'warning'}>
-                          {isIncoming ? 'ACTION REQUIRED' : isBedReserved ? '30-MIN HOLD ACTIVE' : isArrived ? 'ADMITTED' : 'ACKNOWLEDGED'}
+                          {isIncoming ? 'ACTION REQUIRED' : isBedReserved ? (language === 'mr' ? '३०-मिनिटे खाट आरक्षित' : language === 'hi' ? '30-मिनट बेड रिजर्व' : '30-MIN HOLD ACTIVE') : isArrived ? (language === 'mr' ? 'दाखल' : language === 'hi' ? 'भर्ती' : 'ADMITTED') : (language === 'mr' ? 'स्वीकृत' : language === 'hi' ? 'स्वीकृत' : 'ACKNOWLEDGED')}
                         </Badge>
                         <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-bold">
                           #{alert.caseId}
@@ -185,15 +185,15 @@ export default function AdminEmergencyPage() {
                       </div>
                       
                       <p className="text-sm font-bold text-slate-800 mb-2">
-                        Patient: <span className="font-black text-slate-900">{alert.patientName}</span> • Ambulance: <span className="font-mono text-teal-700 font-bold">{alert.ambulanceId || '108 ALS Unit 04'}</span>
+                        {language === 'mr' ? 'रुग्ण:' : language === 'hi' ? 'मरीज:' : 'Patient:'} <span className="font-black text-slate-900">{alert.patientName}</span> • {language === 'mr' ? 'रुग्णवाहिका:' : language === 'hi' ? 'एम्बुलेंस:' : 'Ambulance:'} <span className="font-mono text-teal-700 font-bold">{alert.ambulanceId || '108 ALS Unit 04'}</span>
                       </p>
 
                       <div className="flex flex-wrap gap-4 text-xs font-semibold text-slate-500">
-                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-slate-400"/> Reported: {alert.time}</span>
-                        <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400"/> Incident: {alert.loc}</span>
+                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-slate-400"/> {language === 'mr' ? 'वेळ:' : language === 'hi' ? 'समय:' : 'Reported:'} {alert.time}</span>
+                        <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400"/> {language === 'mr' ? 'घटनास्थळ:' : language === 'hi' ? 'स्थान:' : 'Incident:'} {alert.loc}</span>
                         {alert.reservedBedId && (
                           <span className="flex items-center gap-1 text-emerald-700 font-bold">
-                            <Bed className="w-3.5 h-3.5 text-emerald-600"/> Reserved: {alert.reservedBedId}
+                            <Bed className="w-3.5 h-3.5 text-emerald-600"/> {language === 'mr' ? 'आरक्षित खाट:' : language === 'hi' ? 'आरक्षित बेड:' : 'Reserved:'} {alert.reservedBedId}
                           </span>
                         )}
                       </div>
@@ -230,7 +230,7 @@ export default function AdminEmergencyPage() {
                           <Bed className="w-4 h-4 mr-1.5" /> {t('btnReserveErBed')} (30m Hold)
                         </Button>
                         <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 bg-emerald-100 px-3 py-2 rounded-xl">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Acknowledged
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {language === 'mr' ? 'स्वीकृत' : language === 'hi' ? 'स्वीकृत' : 'Acknowledged'}
                         </span>
                       </>
                     )}
@@ -241,7 +241,7 @@ export default function AdminEmergencyPage() {
                           onClick={() => handleConfirmAdmission(alert.id, alert.patientName)}
                           className="bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs py-2 px-3 rounded-xl shadow-xs"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Confirm Patient Arrival
+                          <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> {t('emgConfirmArrival')}
                         </Button>
                         <Button
                           variant="outline"
@@ -250,7 +250,7 @@ export default function AdminEmergencyPage() {
                           className="border-slate-300 text-xs font-bold"
                           title="Extend 15 Mins"
                         >
-                          <RotateCcw className="w-3.5 h-3.5 mr-1 text-teal-600" /> +15m
+                          <RotateCcw className="w-3.5 h-3.5 mr-1 text-teal-600" /> {t('emgExtendHold')}
                         </Button>
                         <Button
                           variant="outline"
@@ -259,7 +259,7 @@ export default function AdminEmergencyPage() {
                           className="border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold"
                           title="Release Hold"
                         >
-                          <XCircle className="w-3.5 h-3.5 mr-1" /> Release
+                          <XCircle className="w-3.5 h-3.5 mr-1" /> {t('emgReleaseBed')}
                         </Button>
                       </div>
                     )}
@@ -273,23 +273,23 @@ export default function AdminEmergencyPage() {
                       <Timer className="w-5 h-5 text-emerald-400 animate-spin" style={{ animationDuration: '6s' }} />
                       <div>
                         <p className="text-xs font-black uppercase text-emerald-300">
-                          Temporary Emergency Hold Active (Bed ICU-04)
+                          {language === 'mr' ? 'तातडीचे खाट आरक्षण सक्रिय (Bed ICU-04)' : language === 'hi' ? 'आपातकालीन बेड रिजर्वेशन सक्रिय (Bed ICU-04)' : 'Temporary Emergency Hold Active (Bed ICU-04)'}
                         </p>
                         <p className="text-[11px] text-slate-300">
-                          Auto-releases if patient does not arrive or staff does not extend.
+                          {language === 'mr' ? 'रुग्ण न आल्यास खाट आपोआप खुली होईल.' : language === 'hi' ? 'मरीज के न आने पर बेड स्वतः मुक्त हो जाएगा।' : 'Auto-releases if patient does not arrive or staff does not extend.'}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <span className="text-xs text-slate-400 mr-2 font-mono">Time Left:</span>
+                        <span className="text-xs text-slate-400 mr-2 font-mono">{language === 'mr' ? 'उर्वरित वेळ:' : language === 'hi' ? 'बचा समय:' : 'Time Left:'}</span>
                         <span className="text-base sm:text-lg font-mono font-black text-emerald-400 bg-black/50 px-3 py-1 rounded-xl border border-emerald-500/40">
                           {formatTimer(holdTimeRemaining)}
                         </span>
                       </div>
                       <Badge variant="outline" className="text-[10px] text-teal-300 border-teal-500/40">
-                        Ambulance ETA ~4m
+                        {language === 'mr' ? 'रुग्णवाहिका आगमन ~४ मि.' : language === 'hi' ? 'एम्बुलेंस आगमन ~4 मिनट' : 'Ambulance ETA ~4m'}
                       </Badge>
                     </div>
                   </div>

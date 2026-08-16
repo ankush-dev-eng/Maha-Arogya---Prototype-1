@@ -76,7 +76,7 @@ export const DICTIONARY: Translations = {
   trendAmbulances: { en: '8 in transit', mr: '८ रुग्णवाहिका सेवेत', hi: '8 एम्बुलेंस सेवा में' },
   trendStaff: { en: 'Full shift load', mr: 'पूर्ण पाळी कर्मचारी सज्ज', hi: 'पूरी शिफ्ट स्टाफ तैयार' },
 
-  // Doctor Portal
+  // Doctor Portal & Clinical Vitals
   docTitle: { en: 'Clinical Consultation & OPD Queue', mr: 'क्लिनिकल तपासणी व ओपीडी रांग', hi: 'क्लिनिकल परामर्श एवं ओपीडी कतार' },
   docSubtitle: { en: 'Review AI pre-triage intake, examine patient vitals, write electronic prescriptions & manage OPD queue.', mr: 'एआय पूर्व-तपासणी तपासा, जीवन चिन्हे पहा, ई-प्रिस्क्रिप्शन लिहा व ओपीडी रांग व्यवस्थापित करा.', hi: 'एआई प्री-ट्राइएज जांचें, वाइटल संकेत देखें, ई-पर्ची लिखें एवं ओपीडी कतार प्रबंधित करें।' },
   docCallNext: { en: 'Call Next Patient', mr: 'पुढील रुग्ण बोलवा', hi: 'अगले मरीज को बुलाएं' },
@@ -89,6 +89,13 @@ export const DICTIONARY: Translations = {
   docAdmitWard: { en: 'Admit to Ward', mr: 'वॉर्डमध्ये दाखल करा', hi: 'वार्ड में भर्ती करें' },
   docConsultationCompleted: { en: '✓ Consultation Completed • Prescription Sent to Pharmacy', mr: '✓ तपासणी पूर्ण झाली • औषध भांडारात प्रिस्क्रिप्शन पाठवले', hi: '✓ परामर्श पूर्ण हुआ • फार्मेसी को पर्ची भेजी गई' },
   docPatientAdmitted: { en: '✓ Inpatient Admitted to Bed', mr: '✓ रुग्ण खाटेवर दाखल केला आहे', hi: '✓ मरीज बेड पर भर्ती किया गया है' },
+  
+  // Medical Vitals Labels
+  bpLabel: { en: 'Blood Pressure', mr: 'रक्तदाब (BP)', hi: 'रक्तचाप (BP)' },
+  spo2Label: { en: 'SpO2 Oxygen', mr: 'ऑक्सिजन पातळी (SpO2)', hi: 'ऑक्सीजन स्तर (SpO2)' },
+  pulseLabel: { en: 'Heart Rate', mr: 'हृदयाचे ठोके (Pulse)', hi: 'हृदय गति (Heart Rate)' },
+  tempLabel: { en: 'Temperature', mr: 'तापमान (Temp)', hi: 'तापमान (Temp)' },
+  chiefComplaint: { en: 'Chief Complaint', mr: 'मुख्य वैद्यकीय तक्रार', hi: 'मुख्य चिकित्सा शिकायत' },
 
   // Pharmacy Portal & Tables
   pharmTitle: { en: 'Pharmacy & Medicine Inventory', mr: 'औषध भांडार व साठा व्यवस्थापन', hi: 'फार्मेसी एवं दवा इन्वेंटरी' },
@@ -128,6 +135,13 @@ export const DICTIONARY: Translations = {
   bbDonationsToday: { en: 'Donations Logged Today', mr: 'आज झालेले रक्तदान', hi: 'आज दर्ज रक्तदान' },
   bbLogDonation: { en: 'Log Voluntary Blood Donation', mr: 'स्वैच्छिक रक्तदान नोंदवा', hi: 'स्वैच्छिक रक्तदान दर्ज करें' },
   bbIncomingRequests: { en: 'Incoming Hospital Requests', mr: 'रुग्णालयांची रक्त मागणी', hi: 'अस्पतालों से रक्त अनुरोध' },
+  bloodUnitsGroup: { en: 'Active Blood Units by Group', mr: 'रक्तगटनिहाय उपलब्ध रक्त युनिट्स', hi: 'रक्त समूह अनुसार उपलब्ध ब्लड यूनिट्स' },
+  safeUnitsBuffer: { en: 'Safe Units', mr: 'सुरक्षित युनिट्स', hi: 'सुरक्षित यूनिट्स' },
+  minBuffer: { en: 'Min Buffer', mr: 'किमान साठा', hi: 'न्यूनतम बफर' },
+  adequate: { en: 'ADEQUATE', mr: 'पर्याप्त साठा', hi: 'पर्याप्त स्टॉक' },
+  critical: { en: 'CRITICAL', mr: 'गंभीर तुटवडा', hi: 'गंभीर कमी' },
+  low: { en: 'LOW', mr: 'कमी साठा', hi: 'कम स्टॉक' },
+  add: { en: '+ Add', mr: '+ जोडा', hi: '+ जोड़ें' },
 
   // Bed Management Page & Bed Localizations
   bedsTitle: { en: 'Smart Bed Management', mr: 'स्मार्ट खाट व्यवस्थापन', hi: 'स्मार्ट बेड प्रबंधन' },
@@ -141,12 +155,53 @@ export const DICTIONARY: Translations = {
   bedReserved: { en: 'Reserved', mr: 'आरक्षित', hi: 'आरक्षित' },
   bedCleaning: { en: 'Cleaning', mr: 'स्वच्छता चालू', hi: 'सफाई जारी' },
   bedMaintenance: { en: 'Maintenance', mr: 'दुरुस्ती चालू', hi: 'मरम्मत जारी' },
+  cleaningMaint: { en: 'Cleaning / Maint', mr: 'स्वच्छता / देखभाल', hi: 'सफाई / रखरखाव' },
   bedPrefix: { en: 'Bed', mr: 'खाट', hi: 'बेड' },
   wardGeneral: { en: 'General Ward A', mr: 'सर्वसाधारण वॉर्ड A', hi: 'जनरल वार्ड A' },
   wardICU: { en: 'ICU Unit', mr: 'अतिदक्षता विभाग (ICU)', hi: 'आईसीयू यूनिट' },
   wardEmergency: { en: 'Emergency / Trauma', mr: 'आणीबाणी / ट्रॉमा', hi: 'इमरजेंसी / ट्रॉमा' },
   allWardsFilter: { en: 'All Wards (16 Beds)', mr: 'सर्व वॉर्ड (१६ खाटा)', hi: 'सभी वार्ड (16 बेड)' },
   bedChangeAction: { en: 'Change →', mr: 'बदला →', hi: 'बदलें →' },
+
+  // Emergency Control Desk Page
+  emergencyTitle: { 
+    en: '108 Emergency & Trauma Control Desk', 
+    mr: '१०८ आणीबाणी व ट्रॉमा नियंत्रण कक्ष', 
+    hi: '108 आपातकालीन एवं ट्रॉमा नियंत्रण डेस्क' 
+  },
+  emergencyActiveCount: { 
+    en: 'Active Trauma Holds', 
+    mr: 'सक्रिय आणीबाणी खाटा', 
+    hi: 'सक्रिय आपातकालीन बेड' 
+  },
+  emergencySubtitle: { 
+    en: 'Real-time incoming alerts from 108 Dispatch, triage escalation, and 30-minute trauma bed reservation hold.', 
+    mr: '१०८ कडून थेट येणारे अलर्ट, अतिदक्षता वर्गीकरण व ३० मिनिटांचे खाट आरक्षण.', 
+    hi: '108 डिस्पैच से रियल-टाइम अलर्ट, ट्राइएज वर्गीकरण एवं 30-मिनट ट्रॉमा बेड रिजर्वेशन।' 
+  },
+  btnAcknowledge: { en: 'Acknowledge Case', mr: 'केस स्वीकारा', hi: 'केस स्वीकारें' },
+  btnReserveErBed: { en: 'Reserve ER Bed', mr: 'खाट आरक्षित करा', hi: 'बेड रिजर्व करें' },
+  emgConfirmArrival: { en: 'Confirm Patient Arrival', mr: 'रुग्ण आगमन निश्चित करा', hi: 'मरीज आगमन की पुष्टि करें' },
+  emgExtendHold: { en: '+15m Extend', mr: '+१५ मि. मुदत वाढवा', hi: '+15 मिनट बढ़ाएं' },
+  emgReleaseBed: { en: 'Release', mr: 'खाट मुक्त करा', hi: 'बेड मुक्त करें' },
+
+  // OPD Queue Management Page
+  opdTitle: { en: 'OPD Queue Management', mr: 'ओपीडी रांग व्यवस्थापन', hi: 'ओपीडी कतार प्रबंधन' },
+  opdCallNext: { en: 'Call Next Patient', mr: 'पुढील रुग्ण बोलवा', hi: 'अगला मरीज बुलाएं' },
+  opdCurrentlyConsulting: { en: 'Currently Consulting', mr: 'सध्या सुरू असलेली तपासणी', hi: 'वर्तमान में परामर्श जारी' },
+  opdMarkCompleted: { en: 'Mark Completed', mr: 'तपासणी पूर्ण झाली', hi: 'परामर्श पूर्ण दर्ज करें' },
+  opdPrescribe: { en: 'Prescribe', mr: 'औषधे लिहा', hi: 'दवा लिखें' },
+  opdWaitingQueue: { en: 'Waiting Queue', mr: 'प्रतीक्षा रांग', hi: 'प्रतीक्षा कतार' },
+  opdDeptStats: { en: 'Department Stats', mr: 'विभाग आकडेवारी', hi: 'विभाग सांख्यिकी' },
+  opdWaiting: { en: 'Waiting', mr: 'प्रतिक्षाधीन', hi: 'प्रतीक्षारत' },
+  opdConsulted: { en: 'Consulted', mr: 'तपासणी झालेले', hi: 'परामर्श पूर्ण' },
+  opdAvgWait: { en: 'Avg Wait Time', mr: 'सरासरी प्रतीक्षा वेळ', hi: 'औसत प्रतीक्षा समय' },
+  opdToken: { en: 'Token', mr: 'टोकन', hi: 'टोकन' },
+  opdPatient: { en: 'Patient', mr: 'रुग्ण', hi: 'मरीज' },
+  opdEstTime: { en: 'Est. Time', mr: 'अंदाजे वेळ', hi: 'अनुमानित समय' },
+  opdType: { en: 'Type', mr: 'प्रकार', hi: 'प्रकार' },
+  opdPriority: { en: 'Priority', mr: 'प्राधान्य', hi: 'प्राथमिकता' },
+  opdRegular: { en: 'Regular', mr: 'नियमित', hi: 'नियमित' },
 
   // Triage Page
   triageTitle: { en: 'MahaArogya AI Symptom Triage', mr: 'महाआरोग्य एआय लक्षण तपासणी', hi: 'महाआरोग्य एआई लक्षण जांच' },

@@ -14,7 +14,12 @@ import {
   ShoppingCart,
   Clock,
   TrendingDown,
-  Layers
+  Layers,
+  Plus,
+  Minus,
+  PackagePlus,
+  Activity,
+  X
 } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
 
@@ -28,17 +33,18 @@ interface InventoryItem {
   expiryDate: string;
   status: 'adequate' | 'low' | 'critical' | 'expiring';
   reorderBuffer: number;
+  batchNumber?: string;
 }
 
 const DEFAULT_INVENTORY: InventoryItem[] = [
-  { id: '1', name: 'Paracetamol 500mg', category: 'Medicine', currentStock: 1200, unit: 'tablets', consumptionRate: 85, expiryDate: '2027-04-15', status: 'adequate', reorderBuffer: 500 },
-  { id: '2', name: 'Amoxicillin 250mg', category: 'Medicine', currentStock: 140, unit: 'capsules', consumptionRate: 40, expiryDate: '2026-09-05', status: 'critical', reorderBuffer: 300 },
-  { id: '3', name: 'Salbutamol Inhaler 100mcg', category: 'Medicine', currentStock: 25, unit: 'inhalers', consumptionRate: 12, expiryDate: '2026-08-30', status: 'expiring', reorderBuffer: 80 },
-  { id: '4', name: 'Metformin 500mg', category: 'Medicine', currentStock: 850, unit: 'tablets', consumptionRate: 60, expiryDate: '2027-11-20', status: 'adequate', reorderBuffer: 400 },
-  { id: '5', name: 'IV Normal Saline 500ml', category: 'Consumable', currentStock: 45, unit: 'bottles', consumptionRate: 35, expiryDate: '2027-01-10', status: 'low', reorderBuffer: 150 },
-  { id: '6', name: 'Atorvastatin 20mg', category: 'Medicine', currentStock: 620, unit: 'tablets', consumptionRate: 30, expiryDate: '2027-08-14', status: 'adequate', reorderBuffer: 250 },
-  { id: '7', name: 'Disposable Syringes 5ml', category: 'Consumable', currentStock: 1800, unit: 'units', consumptionRate: 150, expiryDate: '2028-03-01', status: 'adequate', reorderBuffer: 800 },
-  { id: '8', name: 'Oxygen Mask (Adult)', category: 'Equipment', currentStock: 35, unit: 'pieces', consumptionRate: 18, expiryDate: '2029-01-01', status: 'low', reorderBuffer: 100 },
+  { id: '1', name: 'Paracetamol 500mg', category: 'Medicine', currentStock: 1200, unit: 'tablets', consumptionRate: 85, expiryDate: '2027-04-15', status: 'adequate', reorderBuffer: 500, batchNumber: 'LOT-PCM-9912' },
+  { id: '2', name: 'Amoxicillin 250mg', category: 'Medicine', currentStock: 140, unit: 'capsules', consumptionRate: 40, expiryDate: '2026-09-05', status: 'critical', reorderBuffer: 300, batchNumber: 'LOT-AMX-8411' },
+  { id: '3', name: 'Salbutamol Inhaler 100mcg', category: 'Medicine', currentStock: 25, unit: 'inhalers', consumptionRate: 12, expiryDate: '2026-08-30', status: 'expiring', reorderBuffer: 80, batchNumber: 'LOT-SLB-3029' },
+  { id: '4', name: 'Metformin 500mg', category: 'Medicine', currentStock: 850, unit: 'tablets', consumptionRate: 60, expiryDate: '2027-11-20', status: 'adequate', reorderBuffer: 400, batchNumber: 'LOT-MET-7714' },
+  { id: '5', name: 'IV Normal Saline 500ml', category: 'Consumable', currentStock: 45, unit: 'bottles', consumptionRate: 35, expiryDate: '2027-01-10', status: 'low', reorderBuffer: 150, batchNumber: 'LOT-IVS-1049' },
+  { id: '6', name: 'Atorvastatin 20mg', category: 'Medicine', currentStock: 620, unit: 'tablets', consumptionRate: 30, expiryDate: '2027-08-14', status: 'adequate', reorderBuffer: 250, batchNumber: 'LOT-ATR-5821' },
+  { id: '7', name: 'Disposable Syringes 5ml', category: 'Consumable', currentStock: 1800, unit: 'units', consumptionRate: 150, expiryDate: '2028-03-01', status: 'adequate', reorderBuffer: 800, batchNumber: 'LOT-SYR-9201' },
+  { id: '8', name: 'Oxygen Mask (Adult)', category: 'Equipment', currentStock: 35, unit: 'pieces', consumptionRate: 18, expiryDate: '2029-01-01', status: 'low', reorderBuffer: 100, batchNumber: 'LOT-OXM-4412' },
 ];
 
 export default function PharmacyPage() {
@@ -47,6 +53,12 @@ export default function PharmacyPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  
+  // Custom batch replenishment modal
+  const [selectedItemForBatch, setSelectedItemForBatch] = useState<InventoryItem | null>(null);
+  const [customQuantity, setCustomQuantity] = useState<number>(500);
+  const [customLot, setCustomLot] = useState<string>('LOT-' + Math.floor(1000 + Math.random() * 9000));
+  const [batchCycleCount, setBatchCycleCount] = useState<number>(1);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -69,38 +81,76 @@ export default function PharmacyPage() {
     localStorage.setItem('maha_pharmacy', JSON.stringify(updated));
   };
 
-  const handleReplenishSingle = (id: string, name: string) => {
-    const updated = inventory.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
-          currentStock: item.currentStock + item.reorderBuffer,
-          status: 'adequate' as const,
-          expiryDate: '2027-12-31'
-        };
-      }
-      return item;
-    });
-    saveInventory(updated);
-    showToast(`📦 Restocked ${name}: +${inventory.find(i => i.id === id)?.reorderBuffer} units added.`);
+  const calculateStatus = (stock: number, buffer: number): 'adequate' | 'low' | 'critical' => {
+    if (stock <= buffer * 0.4) return 'critical';
+    if (stock <= buffer) return 'low';
+    return 'adequate';
   };
 
-  const handleAutoReplenishAll = () => {
-    let count = 0;
+  // Open modal to replenish with different batch quantity
+  const handleOpenBatchModal = (item: InventoryItem) => {
+    setSelectedItemForBatch(item);
+    setCustomQuantity(item.reorderBuffer || 500);
+    setCustomLot(`BATCH-${item.category.slice(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`);
+  };
+
+  const handleConfirmBatchReplenish = () => {
+    if (!selectedItemForBatch) return;
+    const qty = Number(customQuantity) || 100;
     const updated = inventory.map(item => {
-      if (item.status === 'critical' || item.status === 'low' || item.status === 'expiring') {
-        count++;
+      if (item.id === selectedItemForBatch.id) {
+        const newStock = item.currentStock + qty;
         return {
           ...item,
-          currentStock: item.currentStock + (item.reorderBuffer * 2),
-          status: 'adequate' as const,
-          expiryDate: '2028-06-30'
+          currentStock: newStock,
+          status: calculateStatus(newStock, item.reorderBuffer),
+          expiryDate: '2028-12-31',
+          batchNumber: customLot
         };
       }
       return item;
     });
     saveInventory(updated);
-    showToast(`🚀 Auto-Replenished ${count} critical items! Automated Purchase Order PO-9912 dispatched.`);
+    showToast(`📦 Received New Batch (${customLot}): +${qty} ${selectedItemForBatch.unit} of ${selectedItemForBatch.name}!`);
+    setSelectedItemForBatch(null);
+  };
+
+  // Simulate 24-hour OPD & Ward Consumption (depletes stock to trigger low/critical states)
+  const handleSimulateConsumption = () => {
+    let depletedCount = 0;
+    const updated = inventory.map(item => {
+      const dailyUsage = Math.round(item.consumptionRate * (0.8 + Math.random() * 0.6));
+      const newStock = Math.max(10, item.currentStock - dailyUsage);
+      const newStatus = calculateStatus(newStock, item.reorderBuffer);
+      if (newStatus !== 'adequate') depletedCount++;
+      return {
+        ...item,
+        currentStock: newStock,
+        status: newStatus
+      };
+    });
+    saveInventory(updated);
+    setBatchCycleCount(prev => prev + 1);
+    showToast(`📉 24h Clinical Consumption Simulated! ${depletedCount} items now require replenishment.`);
+  };
+
+  // Wholesale supply batch restock with varying quantities
+  const handleWholesaleBatchArrival = () => {
+    const batchId = `MahaWholesale-Batch-${batchCycleCount + 10}`;
+    const updated = inventory.map(item => {
+      const variableIncrement = Math.round(item.reorderBuffer * (1.2 + Math.random() * 1.5));
+      const newStock = item.currentStock + variableIncrement;
+      return {
+        ...item,
+        currentStock: newStock,
+        status: 'adequate' as const,
+        expiryDate: '2028-09-30',
+        batchNumber: `LOT-${Math.floor(1000 + Math.random() * 9000)}`
+      };
+    });
+    saveInventory(updated);
+    setBatchCycleCount(prev => prev + 1);
+    showToast(`🚚 ${batchId} Arrived! Fresh batches with variable quantities added across all items.`);
   };
 
   const criticalCount = inventory.filter(i => i.status === 'critical' || i.status === 'expiring').length;
@@ -136,18 +186,20 @@ export default function PharmacyPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3 shrink-0">
+        <div className="flex flex-wrap gap-2.5 shrink-0">
           <Button 
-            onClick={() => showToast('🔄 Inventory synced with State Central Drug Repository.')}
-            className="bg-slate-800 border border-slate-600 text-white hover:bg-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl"
+            onClick={handleSimulateConsumption}
+            className="bg-slate-800 border border-slate-600 text-amber-300 hover:bg-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-sm"
+            title="Simulate 24-hour patient prescription consumption"
           >
-            <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-teal-400" /> {t('pharmSyncStock')}
+            <Activity className="w-3.5 h-3.5 mr-1.5 text-amber-400" /> Simulate 24h Usage
           </Button>
+
           <Button 
-            onClick={handleAutoReplenishAll}
+            onClick={handleWholesaleBatchArrival}
             className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs py-2.5 px-4 rounded-xl shadow-lg shadow-emerald-500/20"
           >
-            <Sparkles className="w-4 h-4 mr-1.5" /> {t('pharmAutoReplenish')}
+            <PackagePlus className="w-4 h-4 mr-1.5" /> + Receive Supply Batch
           </Button>
         </div>
       </div>
@@ -219,7 +271,7 @@ export default function PharmacyPage() {
           </div>
           <Button 
             size="sm" 
-            onClick={handleAutoReplenishAll}
+            onClick={handleWholesaleBatchArrival}
             className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs shrink-0 shadow-xs"
           >
             Auto-PO Restock
@@ -277,7 +329,7 @@ export default function PharmacyPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredItems.map(item => {
-                  const daysToDepletion = Math.round(item.currentStock / item.consumptionRate);
+                  const daysToDepletion = Math.max(1, Math.round(item.currentStock / item.consumptionRate));
                   return (
                     <tr key={item.id} className="hover:bg-slate-50/80 transition-colors font-medium">
                       <td className="py-3.5 px-4">
@@ -287,7 +339,9 @@ export default function PharmacyPage() {
                           </div>
                           <div>
                             <p className="font-extrabold text-slate-900 text-sm">{item.name}</p>
-                            <p className="text-[11px] text-slate-400">Reorder Buffer: {item.reorderBuffer} {item.unit}</p>
+                            <p className="text-[11px] text-slate-400">
+                              Batch: <span className="font-mono font-bold text-slate-600">{item.batchNumber || 'LOT-8421'}</span> • Buffer: {item.reorderBuffer} {item.unit}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -322,14 +376,14 @@ export default function PharmacyPage() {
                       <td className="py-3.5 px-4 text-right">
                         <Button 
                           size="sm"
-                          onClick={() => handleReplenishSingle(item.id, item.name)}
-                          className={`font-bold text-xs rounded-xl ${
+                          onClick={() => handleOpenBatchModal(item)}
+                          className={`font-bold text-xs rounded-xl shadow-xs ${
                             item.status === 'adequate' 
-                              ? 'bg-slate-100 hover:bg-slate-200 text-slate-700' 
-                              : 'bg-red-600 hover:bg-red-700 text-white shadow-xs'
+                              ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300' 
+                              : 'bg-teal-600 hover:bg-teal-700 text-white'
                           }`}
                         >
-                          <ShoppingCart className="w-3.5 h-3.5 mr-1" /> {t('btnReplenish')}
+                          <PackagePlus className="w-3.5 h-3.5 mr-1" /> + Replenish Batch
                         </Button>
                       </td>
                     </tr>
@@ -340,6 +394,84 @@ export default function PharmacyPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Batch Replenish Modal */}
+      {selectedItemForBatch && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full space-y-4 shadow-2xl animate-in zoom-in-95 text-slate-900">
+            <div className="flex justify-between items-center border-b pb-3">
+              <div>
+                <h3 className="text-lg font-black text-slate-900">Receive New Supply Batch</h3>
+                <p className="text-xs text-slate-500">{selectedItemForBatch.name}</p>
+              </div>
+              <button 
+                onClick={() => setSelectedItemForBatch(null)} 
+                className="p-1 rounded-full hover:bg-slate-100 text-slate-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 py-2">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Batch / Lot Number</label>
+                <Input 
+                  value={customLot}
+                  onChange={(e) => setCustomLot(e.target.value)}
+                  className="font-mono text-sm bg-slate-50 border-slate-300 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Replenishment Quantity ({selectedItemForBatch.unit})
+                </label>
+                <div className="flex items-center gap-2">
+                  <Input 
+                    type="number"
+                    value={customQuantity}
+                    onChange={(e) => setCustomQuantity(Number(e.target.value))}
+                    className="text-base font-black bg-slate-50 border-slate-300"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                {[100, 300, 500, 1000, 2500].map(val => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setCustomQuantity(val)}
+                    className="flex-1 py-1.5 rounded-lg bg-slate-100 hover:bg-teal-50 hover:text-teal-700 text-xs font-bold border border-slate-200"
+                  >
+                    +{val}
+                  </button>
+                ))}
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-600">
+                <span className="font-bold text-slate-800">Current Stock:</span> {selectedItemForBatch.currentStock} {selectedItemForBatch.unit} &rarr; <span className="font-extrabold text-teal-700">New Total: {(selectedItemForBatch.currentStock + (Number(customQuantity) || 0)).toLocaleString()} {selectedItemForBatch.unit}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t">
+              <Button 
+                onClick={handleConfirmBatchReplenish} 
+                className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-black text-xs py-2.5 rounded-xl shadow-sm"
+              >
+                Confirm & Receive Batch
+              </Button>
+              <Button 
+                onClick={() => setSelectedItemForBatch(null)} 
+                variant="outline" 
+                className="border-slate-300 font-bold text-xs rounded-xl"
+              >
+                {t('cancel')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

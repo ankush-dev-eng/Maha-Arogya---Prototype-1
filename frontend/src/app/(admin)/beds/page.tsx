@@ -152,7 +152,7 @@ export default function BedsPage() {
         <Card className="border-l-4 border-l-blue-500 bg-white shadow-2xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cleaning / Maint</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t('cleaningMaint')}</p>
               <p className="text-2xl font-black text-blue-600 mt-0.5">{cleaningCount}</p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">

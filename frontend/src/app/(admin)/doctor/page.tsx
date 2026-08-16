@@ -3,21 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Input } from '@/components/ui/Input';
 import { 
   Stethoscope, 
   User, 
   Activity, 
-  Heart, 
   FileText, 
   CheckCircle2, 
   AlertCircle, 
-  Send,
-  Bed,
-  Plus,
-  Clock,
-  ShieldCheck,
+  Clock, 
+  Plus, 
   Sparkles,
+  Bed,
+  ShieldCheck,
+  Send,
   RefreshCw
 } from 'lucide-react';
 import { useLanguage } from '@/lib/LanguageContext';
@@ -39,9 +37,9 @@ interface DoctorPatient {
   };
   symptoms: string[];
   allergies: string[];
-  status: 'in_consultation' | 'waiting' | 'completed' | 'admitted';
-  admittedBed?: string;
+  status: 'waiting' | 'in_consultation' | 'completed' | 'admitted';
   initialRx: string;
+  admittedBed?: string;
 }
 
 const ROTATION_PATIENTS: DoctorPatient[] = [
@@ -67,11 +65,11 @@ const ROTATION_PATIENTS: DoctorPatient[] = [
     gender: 'Female',
     complaint: 'Persistent high fever & dry cough for 4 days',
     risk: 'moderate',
-    vitals: { bp: '118/76 mmHg', spo2: '98%', hr: '88 bpm', temp: '102.2°F' },
-    symptoms: ['Pyrexia', 'Body Aches', 'Fatigue'],
-    allergies: ['Sulfa drugs'],
+    vitals: { bp: '118/76 mmHg', spo2: '97%', hr: '92 bpm', temp: '102.4°F' },
+    symptoms: ['High Fever', 'Dry Cough', 'Body Ache'],
+    allergies: ['None known'],
     status: 'waiting',
-    initialRx: 'Tab. Paracetamol 650mg TDS x 3 days\nTab. Azithromycin 500mg OD x 3 days\nSyrup Levocetirizine 5ml HS'
+    initialRx: 'Tab. Paracetamol 650mg TDS x 3 days\nTab. Azithromycin 500mg OD x 5 days\nSyrup Ascoril-D 10ml TDS'
   },
   {
     id: 'p3',
@@ -81,11 +79,11 @@ const ROTATION_PATIENTS: DoctorPatient[] = [
     gender: 'Male',
     complaint: 'Post-CABG routine follow-up & hypertension review',
     risk: 'low',
-    vitals: { bp: '130/82 mmHg', spo2: '99%', hr: '72 bpm', temp: '98.4°F' },
-    symptoms: ['Mild exertional fatigue'],
-    allergies: ['None known'],
+    vitals: { bp: '132/82 mmHg', spo2: '98%', hr: '72 bpm', temp: '98.4°F' },
+    symptoms: ['Mild Fatigue', 'Controlled BP'],
+    allergies: ['Sulfa Drugs'],
     status: 'waiting',
-    initialRx: 'Tab. Telmisartan 40mg OD\nTab. Metoprolol 25mg OD\nTab. Eco-sprin 75mg OD'
+    initialRx: 'Tab. Telmisartan 40mg OD morning\nTab. Metoprolol 25mg OD\nTab. Clopidogrel 75mg OD'
   },
   {
     id: 'p4',
@@ -95,47 +93,47 @@ const ROTATION_PATIENTS: DoctorPatient[] = [
     gender: 'Male',
     complaint: 'Acute bilateral ankle swelling & orthopnea',
     risk: 'high',
-    vitals: { bp: '160/100 mmHg', spo2: '92%', hr: '96 bpm', temp: '98.8°F' },
-    symptoms: ['Pedal Edema', 'Orthopnea', 'Hypertensive Urgency'],
-    allergies: ['NSAIDs'],
+    vitals: { bp: '160/100 mmHg', spo2: '92%', hr: '108 bpm', temp: '98.8°F' },
+    symptoms: ['Pedal Edema', 'Orthopnea', 'Basal Crackles'],
+    allergies: ['Aspirin'],
     status: 'waiting',
-    initialRx: 'Inj. Furosemide 20mg IV stat\nTab. Torsemide 10mg OD'
+    initialRx: 'Inj. Lasix 40mg IV stat\nTab. Torsemide 20mg OD\nTab. Spironolactone 25mg OD'
   },
   {
     id: 'p5',
     token: 'A-106',
-    name: 'Kavita Shinde',
+    name: 'Kavita Joshi',
     age: 28,
     gender: 'Female',
     complaint: 'Severe migraine headache with photophobia & nausea',
     risk: 'moderate',
-    vitals: { bp: '114/72 mmHg', spo2: '99%', hr: '76 bpm', temp: '98.4°F' },
-    symptoms: ['Unilateral Throbbing Headache', 'Nausea', 'Photophobia'],
-    allergies: ['Aspirin'],
+    vitals: { bp: '120/78 mmHg', spo2: '99%', hr: '84 bpm', temp: '98.6°F' },
+    symptoms: ['Unilateral Throbbing Headache', 'Photophobia', 'Nausea'],
+    allergies: ['None known'],
     status: 'waiting',
-    initialRx: 'Tab. Naproxen 500mg + Domperidone 10mg SOS\nTab. Flunarizine 5mg HS'
+    initialRx: 'Tab. Naproxen 500mg + Domperidone 10mg BD SOS\nTab. Propranolol 20mg BD (Prophylaxis)'
   },
   {
     id: 'p6',
     token: 'A-107',
-    name: 'Nitin Borse',
-    age: 52,
+    name: 'Dattatray Shinde',
+    age: 62,
     gender: 'Male',
-    complaint: 'Acute diabetic foot ulcer with localized redness',
-    risk: 'high',
-    vitals: { bp: '138/88 mmHg', spo2: '97%', hr: '84 bpm', temp: '99.8°F' },
-    symptoms: ['Right Plantar Ulcer', 'Purulent Discharge', 'Peripheral Neuropathy'],
-    allergies: ['None known'],
+    complaint: 'Type 2 Diabetes review & tingling sensation in feet',
+    risk: 'low',
+    vitals: { bp: '136/84 mmHg', spo2: '98%', hr: '76 bpm', temp: '98.2°F' },
+    symptoms: ['Peripheral Neuropathy', 'HbA1c 8.4%'],
+    allergies: ['Metformin (Mild GI)'],
     status: 'waiting',
-    initialRx: 'Tab. Augmentin 625mg BD x 7 days\nDaily Saline Dressing & Offloading Footwear'
+    initialRx: 'Tab. Glimepiride 1mg OD before breakfast\nTab. Pregabalin 75mg + Methylcobalamin HS'
   },
   {
     id: 'p7',
     token: 'A-108',
-    name: 'Pooja Jadhav',
+    name: 'Pooja Waghmare',
     age: 24,
     gender: 'Female',
-    complaint: 'Acute asthma flare-up with wheezing & chest tightness',
+    complaint: 'Acute asthma exacerbation triggered by dust',
     risk: 'high',
     vitals: { bp: '122/80 mmHg', spo2: '91%', hr: '110 bpm', temp: '98.6°F' },
     symptoms: ['Expiratory Wheeze', 'Dyspnea', 'Tachypnea'],
@@ -160,7 +158,7 @@ const ROTATION_PATIENTS: DoctorPatient[] = [
 ];
 
 export default function DoctorPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [queue, setQueue] = useState<DoctorPatient[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState<string>('p1');
   const [rxText, setRxText] = useState<string>('');
@@ -336,7 +334,7 @@ export default function DoctorPage() {
           </Button>
           <Button 
             onClick={handleCallNext}
-            className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-sm shadow-teal-600/20"
+            className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-sm shadow-teal-600/20 cursor-pointer"
           >
             <Plus className="w-4 h-4 mr-1.5" /> {t('docCallNext')}
           </Button>
@@ -350,10 +348,12 @@ export default function DoctorPage() {
             <CardHeader className="p-4 bg-slate-50 border-b flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-sm font-black text-slate-900">{t('docTodaysQueue')}</CardTitle>
-                <p className="text-xs text-slate-500">{waitingCount} waiting • {completedCount} completed/admitted</p>
+                <p className="text-xs text-slate-500">
+                  {waitingCount} {language === 'mr' ? 'प्रतीक्षेत' : language === 'hi' ? 'प्रतीक्षारत' : 'waiting'} • {completedCount} {language === 'mr' ? 'तपासणी पूर्ण' : language === 'hi' ? 'परामर्श पूर्ण' : 'completed/admitted'}
+                </p>
               </div>
               <Badge variant="info" className="text-xs font-bold">
-                Token {selectedPatient?.token || 'A-102'} Active
+                Token {selectedPatient?.token || 'A-102'} {language === 'mr' ? 'सक्रिय' : language === 'hi' ? 'सक्रिय' : 'Active'}
               </Badge>
             </CardHeader>
 
@@ -385,19 +385,19 @@ export default function DoctorPage() {
                     </div>
 
                     <p className="text-xs text-slate-600 font-medium line-clamp-1 mb-2">
-                      Complaint: {p.complaint}
+                      {language === 'mr' ? 'तक्रार:' : language === 'hi' ? 'शिकायत:' : 'Complaint:'} {p.complaint}
                     </p>
 
                     <div className="flex items-center justify-between text-[11px] font-semibold pt-1 border-t border-slate-100">
                       <span className="flex items-center gap-1 text-slate-500">
-                        <Clock className="w-3 h-3" /> {isDone ? 'Seen' : 'Wait: ~10 mins'}
+                        <Clock className="w-3 h-3" /> {isDone ? (language === 'mr' ? 'तपासणी पूर्ण' : language === 'hi' ? 'देखा गया' : 'Seen') : (language === 'mr' ? 'प्रतीक्षा: ~१० मि.' : language === 'hi' ? 'प्रतीक्षा: ~10 मिनट' : 'Wait: ~10 mins')}
                       </span>
                       <span className={`capitalize font-bold ${
                         p.status === 'admitted' ? 'text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md' :
                         p.status === 'completed' ? 'text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md' :
                         p.status === 'in_consultation' ? 'text-teal-600 font-black' : 'text-slate-500'
                       }`}>
-                        ● {p.status === 'admitted' ? 'Admitted' : p.status === 'completed' ? 'Completed' : p.status.replace('_', ' ')}
+                        ● {p.status === 'admitted' ? (language === 'mr' ? 'दाखल केले' : language === 'hi' ? 'भर्ती किया' : 'Admitted') : p.status === 'completed' ? (language === 'mr' ? 'पूर्ण' : language === 'hi' ? 'पूर्ण' : 'Completed') : (language === 'mr' ? 'तपासणी सुरू' : language === 'hi' ? 'परामर्श जारी' : 'In Consultation')}
                       </span>
                     </div>
                   </div>
@@ -420,11 +420,11 @@ export default function DoctorPage() {
                         Token {selectedPatient.token}
                       </span>
                       <span className="text-xs text-slate-500 font-medium">
-                        {selectedPatient.age} years • {selectedPatient.gender}
+                        {selectedPatient.age} {language === 'mr' ? 'वर्षे' : language === 'hi' ? 'वर्ष' : 'years'} • {selectedPatient.gender === 'Male' ? (language === 'mr' ? 'पुरुष' : language === 'hi' ? 'पुरुष' : 'Male') : (language === 'mr' ? 'महिला' : language === 'hi' ? 'महिला' : 'Female')}
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 mt-1">
-                      <strong className="text-slate-800">Chief Complaint:</strong> {selectedPatient.complaint}
+                      <strong className="text-slate-800">{t('chiefComplaint')}:</strong> {selectedPatient.complaint}
                     </p>
                   </div>
                   <Badge variant={selectedPatient.risk === 'high' ? 'danger' : 'warning'} className="text-xs font-bold shrink-0">
@@ -439,19 +439,19 @@ export default function DoctorPage() {
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-center">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Blood Pressure</span>
+                      <span className="text-[10px] uppercase font-bold text-slate-400">{t('bpLabel')}</span>
                       <p className="text-sm font-black text-slate-900 mt-0.5">{selectedPatient.vitals.bp}</p>
                     </div>
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-center">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">SpO2 Oxygen</span>
+                      <span className="text-[10px] uppercase font-bold text-slate-400">{t('spo2Label')}</span>
                       <p className="text-sm font-black text-teal-600 mt-0.5">{selectedPatient.vitals.spo2}</p>
                     </div>
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-center">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Heart Rate</span>
+                      <span className="text-[10px] uppercase font-bold text-slate-400">{t('pulseLabel')}</span>
                       <p className="text-sm font-black text-slate-900 mt-0.5">{selectedPatient.vitals.hr}</p>
                     </div>
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-center">
-                      <span className="text-[10px] uppercase font-bold text-slate-400">Temperature</span>
+                      <span className="text-[10px] uppercase font-bold text-slate-400">{t('tempLabel')}</span>
                       <p className="text-sm font-black text-slate-900 mt-0.5">{selectedPatient.vitals.temp}</p>
                     </div>
                   </div>
@@ -520,14 +520,14 @@ export default function DoctorPage() {
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
                     <Button 
                       onClick={handleCompleteRx}
-                      className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 text-xs shadow-sm shadow-teal-600/20"
+                      className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 text-xs shadow-sm shadow-teal-600/20 cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4 mr-1.5" /> {t('docCompleteRx')}
                     </Button>
                     <Button 
                       variant="outline"
                       onClick={handleAdmitToWard}
-                      className="border-red-300 text-red-700 hover:bg-red-50 font-bold text-xs py-2.5 px-4"
+                      className="border-red-300 text-red-700 hover:bg-red-50 font-bold text-xs py-2.5 px-4 cursor-pointer"
                     >
                       <Bed className="w-4 h-4 mr-1.5" /> {t('docAdmitWard')}
                     </Button>

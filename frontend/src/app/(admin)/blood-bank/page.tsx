@@ -199,7 +199,7 @@ export default function BloodBankPage() {
       {/* Blood Group Grid */}
       <div>
         <h2 className="text-base font-black text-slate-900 mb-3 flex items-center gap-2">
-          <Droplet className="w-4 h-4 text-rose-600" /> Active Blood Units by Group
+          <Droplet className="w-4 h-4 text-rose-600" /> {t('bloodUnitsGroup')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {stocks.map(item => (
@@ -216,13 +216,13 @@ export default function BloodBankPage() {
                     {item.group}
                   </span>
                   <Badge variant={item.status === 'critical' ? 'danger' : item.status === 'low' ? 'warning' : 'success'}>
-                    {item.status.toUpperCase()}
+                    {t(item.status)}
                   </Badge>
                 </div>
 
                 <div className="my-2">
                   <p className="text-3xl font-black text-slate-900">{item.units}</p>
-                  <p className="text-xs text-slate-500">Safe Units (Min Buffer: {item.minBuffer})</p>
+                  <p className="text-xs text-slate-500">{t('safeUnitsBuffer')} ({t('minBuffer')}: {item.minBuffer})</p>
                 </div>
 
                 <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-400 font-semibold">
@@ -232,9 +232,9 @@ export default function BloodBankPage() {
                       setSelectedGroup(item.group);
                       showToast(`Selected blood group ${item.group} for donation intake.`);
                     }} 
-                    className="text-rose-600 font-bold hover:underline"
+                    className="text-rose-600 font-bold hover:underline cursor-pointer"
                   >
-                    + Add
+                    {t('add')}
                   </button>
                 </div>
               </CardContent>
