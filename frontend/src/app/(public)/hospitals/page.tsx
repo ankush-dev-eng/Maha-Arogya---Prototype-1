@@ -103,10 +103,9 @@ export default function HospitalsPage() {
           setLocationStatus('GPS Active');
           const localHospitals = getNearbyHospitalsForLocation(coords.lat, coords.lng);
           setHospitals(localHospitals);
-          showToast(`📍 Live user location acquired (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})! Centering nearby healthcare network.`);
+          showToast(`📍 Live user location acquired (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})! Redirecting initial map view to your location.`);
         },
         (err) => {
-          // Fallback location
           const fallback = { lat: 18.5204, lng: 73.8567 };
           setUserCoords(fallback);
           setLocationStatus('Maharashtra Grid');
@@ -199,7 +198,7 @@ export default function HospitalsPage() {
     id: 'user_live_pos',
     position: [userCoords.lat, userCoords.lng] as [number, number],
     title: 'You Are Here (Live Location)',
-    color: 'green',
+    color: 'blue',
     details: (
       <div className="p-1">
         <p className="text-xs font-black text-blue-600">👤 {t('youAreHere')}</p>
@@ -209,6 +208,12 @@ export default function HospitalsPage() {
   }] : [];
 
   const allMarkers = [...userMarker, ...hospitalMarkers];
+
+  const currentMapCenter: [number, number] = selectedHospital 
+    ? [selectedHospital.lat, selectedHospital.lng]
+    : userCoords 
+    ? [userCoords.lat, userCoords.lng] 
+    : [18.5204, 73.8567];
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
@@ -349,7 +354,7 @@ export default function HospitalsPage() {
         <div className="flex-1 h-full relative z-0 bg-slate-100 min-h-[300px]">
           <DynamicMap 
             markers={allMarkers} 
-            center={userCoords ? [userCoords.lat, userCoords.lng] : [18.5204, 73.8567]} 
+            center={currentMapCenter} 
             zoom={userCoords ? 13 : 12} 
           />
         </div>
